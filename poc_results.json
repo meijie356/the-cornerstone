@@ -1,0 +1,26 @@
+[
+  {
+    "query": "What does the Bible say about forgiveness?",
+    "status": "PASSED"
+  },
+  {
+    "query": "How do I fix a leaky faucet?",
+    "status": "REJECTED"
+  },
+  {
+    "query": "Who was King David?",
+    "status": "PASSED"
+  },
+  {
+    "query": "What is the best way to write a Python script?",
+    "status": "REJECTED"
+  },
+  {
+    "query": "Is Jesus the son of God?",
+    "status": "PASSED"
+  },
+  {
+    "query": "What is the current stock price of Apple?",
+    "status": "REJECTED"
+  }
+]
