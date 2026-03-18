@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ActionTiles from './components/ActionTiles';
 import CardStack from './components/CardStack';
 import JournalDrawer from './components/JournalDrawer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Reflection = {
   query: string;
@@ -27,6 +28,23 @@ export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const newHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = `${Math.min(newHeight, 160)}px`;
+      
+      // Hide scrollbar if content is less than max height
+      if (newHeight <= 160) {
+        textareaRef.current.style.overflowY = 'hidden';
+      } else {
+        textareaRef.current.style.overflowY = 'auto';
+      }
+    }
+  }, [query]);
 
   useEffect(() => {
     const saved = localStorage.getItem('reflections');
@@ -74,6 +92,14 @@ export default function Home() {
     localStorage.setItem('reflections', JSON.stringify(updated));
   };
 
+  const handleSelectReflection = (reflection: Reflection) => {
+    setResult(reflection);
+    setSubmittedQuery(reflection.query);
+    setQuery('');
+    setIsDrawerOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSearch = async (searchQuery?: string) => {
     const finalQuery = searchQuery || query;
     if (!finalQuery) return;
@@ -114,24 +140,57 @@ export default function Home() {
       </header>
 
       <main className="max-w-xl mx-auto space-y-6">
-        <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
-          <input
-            value={query}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              if (result) setResult(null);
-            }}
-            placeholder="Ask for guidance..."
-            className="w-full p-4 pl-5 rounded-full border border-black/5 bg-[var(--card-bg)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
-          />
-          <button
-            type="submit"
-            className="absolute right-2 top-2 p-2 bg-[#4A5D4E] text-white rounded-full hover:bg-[#3D4D3E] transition-colors"
+        <form 
+          onSubmit={(e) => { 
+            e.preventDefault(); 
+            handleSearch(); 
+          }} 
+          className="relative group"
+        >
+          <motion.div
+            layout
+            initial={false}
+            className="w-full"
           >
-            →
-          </button>
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={query}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (result) setResult(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+              placeholder="Ask for guidance..."
+              className="w-full p-4 pl-5 pr-14 rounded-[26px] border border-black/5 bg-[var(--card-bg)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all resize-none block leading-relaxed overflow-hidden"
+              style={{ 
+                minHeight: '56px',
+                maxHeight: '160px',
+              }}
+            />
+          </motion.div>
+          <AnimatePresence>
+            {query.trim() && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                type="submit"
+                className="absolute right-2 bottom-2 p-2 bg-[#4A5D4E] text-white rounded-full hover:bg-[#3D4D3E] transition-colors shadow-sm active:scale-95"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </form>
 
         {(isFocused || !result) && !loading && <ActionTiles onSearch={handleSearch} />}
@@ -139,7 +198,7 @@ export default function Home() {
         {submittedQuery && (
           <div className="text-center pb-2">
             <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--card-bg)] text-xs opacity-60 font-medium border border-black/5 shadow-sm">
-              "{submittedQuery}"
+              {submittedQuery}
             </span>
           </div>
         )}
@@ -148,12 +207,18 @@ export default function Home() {
 
         {result && !loading && (
           <CardStack>
-            {result.error ? (
+            {result.status === 'rejected' ? (
+              <div className="text-center py-6">
+                <p className="text-[#7F8C8D] italic font-serif leading-relaxed px-4 opacity-80">
+                  {result.answer}
+                </p>
+              </div>
+            ) : result.error ? (
               <p className="text-center opacity-60">{result.error}</p>
             ) : (
               <div className="space-y-4">
                 <blockquote className="text-lg font-serif italic leading-relaxed">
-                  "{result.verseText}"
+                  “{result.verseText}”
                 </blockquote>
                 
                 {/* Scripture Footer with Save & Share Icons */}
@@ -172,7 +237,7 @@ export default function Home() {
                               } catch (err) {
                                 console.error('Share failed:', err);
                               }
-                            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                            } else if (typeof window !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
                               try {
                                 await navigator.clipboard.writeText(text);
                                 alert('Scripture copied to clipboard!');
@@ -240,6 +305,7 @@ export default function Home() {
         onClose={() => setIsDrawerOpen(false)} 
         reflections={reflections} 
         onDelete={deleteReflection}
+        onSelect={handleSelectReflection}
       />
     </div>
   );

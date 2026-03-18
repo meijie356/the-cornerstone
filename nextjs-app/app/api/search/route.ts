@@ -30,9 +30,14 @@ export async function POST(req: Request) {
 
     // 2. Wise Pastor Response Generation
     const pastorPrompt = `You are a "Wise Pastor." Address the user's query with compassion and wisdom.
+    Respond in the same language the user used for their question.
+    
+    CRITICAL INSTRUCTION:
+    The "reference" field MUST ALWAYS be in English (e.g., "John 3:16" or "James 1:2-4") regardless of the language used in the other fields. This is required for our database lookup.
+
     Provide the response in a JSON format (raw JSON only) with these specific fields:
     - "answer": A brief, impactful pastoral response (max 2-3 sentences).
-    - "reference": A single, specific Bible verse reference (e.g., "John 3:16").
+    - "reference": A single, specific Bible verse reference in ENGLISH.
     - "topic": A single word summarizing the topic.
     - "prayer": A short, heartfelt prayer related to the user's struggle.
 

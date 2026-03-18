@@ -6,12 +6,14 @@ export default function JournalDrawer({
   isOpen,
   onClose,
   reflections,
-  onDelete
+  onDelete,
+  onSelect
 }: {
   isOpen: boolean;
   onClose: () => void;
   reflections: any[];
   onDelete: (timestamp: number) => void;
+  onSelect: (reflection: any) => void;
 }) {
   return (
     <AnimatePresence>
@@ -38,13 +40,25 @@ export default function JournalDrawer({
             
             <div className="space-y-4">
               {reflections.map((ref) => (
-                <div key={ref.timestamp} className="p-4 rounded-xl border border-black/5 bg-[var(--background)]">
+                <div 
+                  key={ref.timestamp} 
+                  onClick={() => onSelect(ref)}
+                  className="p-4 rounded-xl border border-black/5 bg-[var(--background)] cursor-pointer hover:border-[#D4AF37]/30 transition-all active:scale-[0.98]"
+                >
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs opacity-60">{new Date(ref.timestamp).toLocaleDateString()}</span>
-                    <button onClick={() => onDelete(ref.timestamp)} className="text-xs text-red-500">Delete</button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(ref.timestamp);
+                      }} 
+                      className="text-xs text-red-500 hover:text-red-600 p-1"
+                    >
+                      Delete
+                    </button>
                   </div>
                   <h4 className="font-semibold text-sm">{ref.query}</h4>
-                  <p className="text-sm mt-1">{ref.verseText}</p>
+                  <p className="text-sm mt-1 line-clamp-2 italic opacity-80">“{ref.verseText}”</p>
                 </div>
               ))}
             </div>
