@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ActionTiles from './components/ActionTiles';
 import CardStack from './components/CardStack';
 import JournalDrawer from './components/JournalDrawer';
+import ContactDrawer from './components/ContactDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Reflection = {
@@ -26,6 +27,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const [reflections, setReflections] = useState<Reflection[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   
@@ -300,12 +302,27 @@ export default function Home() {
         )}
       </main>
 
+      <footer className="max-w-xl mx-auto py-12 text-center">
+        <button 
+          onClick={() => setIsContactOpen(true)}
+          className="text-xs font-medium uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity"
+        >
+          Contact & Support
+        </button>
+      </footer>
+
       <JournalDrawer 
         isOpen={isDrawerOpen} 
         onClose={() => setIsDrawerOpen(false)} 
         reflections={reflections} 
         onDelete={deleteReflection}
         onSelect={handleSelectReflection}
+      />
+
+      <ContactDrawer
+        isOpen={isContactOpen}
+        onClose={() => setIsContactOpen(false)}
+        email="agent0jbh@gmail.com"
       />
     </div>
   );
