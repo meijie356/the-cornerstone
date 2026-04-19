@@ -20,7 +20,7 @@ export default function ContactDrawer({ isOpen, onClose, email }: ContactDrawerP
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch(`https://formspree.io/f/mqakvweb`, {
+      const response = await fetch(`https://formspree.io/f/xgorynnb`, {
         method: 'POST',
         headers: { 
           'Accept': 'application/json'
