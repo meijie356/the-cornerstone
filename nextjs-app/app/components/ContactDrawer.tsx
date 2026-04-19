@@ -20,14 +20,16 @@ export default function ContactDrawer({ isOpen, onClose, email }: ContactDrawerP
     const data = Object.fromEntries(formData.entries());
 
     try {
-      // Using Formspree as the suggested standard for static/Next.js sites
       const response = await fetch(`https://formspree.io/f/mqakvweb`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
-          ...data,
-          _replyto: email, // Submission goes to J's email
-          subject: 'New Contact from The Cornerstone',
+          name: data.name,
+          email: data.email,
+          message: data.message,
         }),
       });
 
