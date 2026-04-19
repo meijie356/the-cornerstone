@@ -23,14 +23,9 @@ export default function ContactDrawer({ isOpen, onClose, email }: ContactDrawerP
       const response = await fetch(`https://formspree.io/f/mqakvweb`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          message: data.message,
-        }),
+        body: formData, // Send as FormData instead of JSON string
       });
 
       if (response.ok) {
